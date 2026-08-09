@@ -2,6 +2,29 @@ let balance = 0;
 let lastDetectedValue = 0;
 const video = document.getElementById('video');
 
+function getApiKey() {
+    return localStorage.getItem('gemini_api_key') || '';
+}
+
+function openSettings() {
+    document.getElementById('api-key-input').value = getApiKey();
+    document.getElementById('settings-modal').classList.remove('hidden');
+}
+
+function closeSettings() {
+    document.getElementById('settings-modal').classList.add('hidden');
+}
+
+function saveApiKey() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if (!key) {
+        alert('Cole uma chave válida antes de salvar.');
+        return;
+    }
+    localStorage.setItem('gemini_api_key', key);
+    closeSettings();
+}
+
 async function updateBalanceDisplay() {
     const res = await fetch('/get_balance');
     const data = await res.json();
@@ -9,6 +32,12 @@ async function updateBalanceDisplay() {
 }
 
 async function openScanner() {
+    if (!getApiKey()) {
+        alert('Configure sua chave de API primeiro (ícone de engrenagem).');
+        openSettings();
+        return;
+    }
+
     document.getElementById('camera-overlay').classList.remove('hidden');
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -47,12 +76,12 @@ async function scanFrame() {
     const res = await fetch('/process_image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: base64Image })
+        body: JSON.stringify({ image: base64Image, api_key: getApiKey() })
     });
 
     const data = await res.json();
-    lastDetectedValue = data.total;
-    document.getElementById('current-scan-value').innerText = `R$ ${data.total.toFixed(2)}`;
+    lastDetectedValue = data.total || 0;
+    document.getElementById('current-scan-value').innerText = `R$ ${lastDetectedValue.toFixed(2)}`;
     document.getElementById('scan-status').innerText = data.detalhes;
 }
 
@@ -63,7 +92,6 @@ async function confirmScan() {
         body: JSON.stringify({ valor: lastDetectedValue })
     });
     updateBalanceDisplay();
-    // A câmera continua aberta para o próximo scan
 }
 
 function closeScanner() {

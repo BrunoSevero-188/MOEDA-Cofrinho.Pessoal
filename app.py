@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-import google.generativeai as genai
+from google import genai
 import json
 import os
 import socket
@@ -10,20 +10,7 @@ import qrcode
 
 app = Flask(__name__)
 
-from dotenv import load_dotenv
-load_dotenv()
-
-# Configurar a API KEY do Google Gemini via variável de ambiente
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise RuntimeError(
-        "Defina a variável de ambiente GEMINI_API_KEY antes de rodar "
-        "(ex: export GEMINI_API_KEY='sua_chave_aqui')"
-    )
-
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
-
+MODEL_NAME = "gemini-2.0-flash"
 DB_FILE = 'cofrinho.json'
 
 
@@ -53,11 +40,15 @@ def get_balance():
 @app.route('/process_image', methods=['POST'])
 def process_image():
     data = request.json
-    image_data = data['image'].split(",")[1]  # Remove o cabeçalho base64
+    api_key = data.get('api_key', '').strip()
+
+    if not api_key:
+        return jsonify({"total": 0, "detalhes": "Nenhuma chave de API configurada."}), 400
+
+    image_data = data['image'].split(",")[1]
     img_bytes = base64.b64decode(image_data)
     img = Image.open(io.BytesIO(img_bytes))
 
-    # Pedindo explicitamente JSON válido (aspas duplas) para evitar erro no json.loads
     prompt = (
         'Conte o valor total em dinheiro (Notas e Moedas de Real BRL) nesta imagem. '
         'Retorne APENAS um JSON válido, com aspas duplas, no formato: '
@@ -65,12 +56,19 @@ def process_image():
     )
 
     try:
-        response = model.generate_content([prompt, img])
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=[prompt, img],
+        )
         txt = response.text.replace('```json', '').replace('```', '').strip()
         result = json.loads(txt)
         return jsonify(result)
     except Exception as e:
-        return jsonify({"total": 0, "detalhes": f"Erro no processamento: {e}"}), 500
+        msg = str(e)
+        if "API key not valid" in msg or "API_KEY_INVALID" in msg:
+            return jsonify({"total": 0, "detalhes": "Chave de API inválida."}), 401
+        return jsonify({"total": 0, "detalhes": f"Erro no processamento: {msg}"}), 500
 
 
 @app.route('/add_balance', methods=['POST'])
@@ -84,7 +82,6 @@ def add_balance():
 
 
 def get_local_ip():
-    """Descobre o IP da máquina na rede local (sem precisar de internet real)."""
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(('8.8.8.8', 80))
@@ -106,8 +103,6 @@ def print_startup_banner(port):
     print(f"📱  Rede (celular):    {network_url}")
     print("=" * 55)
     print("Escaneie o QR Code abaixo com o celular (mesma Wi-Fi):\n")
-    print("⚠️  O navegador vai avisar que o site 'não é seguro' (certificado")
-    print("    autoassinado). Toque em 'Avançado' > 'Acessar mesmo assim'.\n")
 
     qr = qrcode.QRCode(border=1)
     qr.add_data(network_url)
