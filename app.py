@@ -68,7 +68,12 @@ def process_image():
         msg = str(e)
         if "API key not valid" in msg or "API_KEY_INVALID" in msg:
             return jsonify({"total": 0, "detalhes": "Chave de API inválida."}), 401
-        return jsonify({"total": 0, "detalhes": f"Erro no processamento: {msg}"}), 500
+        if "RESOURCE_EXHAUSTED" in msg or "429" in msg:
+            return jsonify({
+                "total": 0,
+                "detalhes": "Cota da API esgotada ou indisponível para essa chave. Tente gerar uma nova chave em aistudio.google.com/apikey ou aguarde alguns minutos."
+            }), 429
+        return jsonify({"total": 0, "detalhes": "Erro no processamento. Tente novamente."}), 500
 
 
 @app.route('/add_balance', methods=['POST'])
