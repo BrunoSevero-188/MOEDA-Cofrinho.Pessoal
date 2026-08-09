@@ -1,0 +1,67 @@
+:root {
+    --primary: #2ecc71;
+    --dark: #2c3e50;
+    --light: #ecf0f1;
+    --danger: #e74c3c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+
+body { background-color: #f4f7f6; display: flex; justify-content: center; }
+
+.app-container { width: 100%; max-width: 450px; height: 100vh; background: white; position: relative; overflow: hidden; }
+
+header { padding: 30px 20px; background: var(--dark); color: white; border-radius: 0 0 30px 30px; }
+
+.balance-card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center; }
+.balance-card h2 { font-size: 2.5rem; color: var(--primary); }
+
+main { padding: 20px; }
+
+.actions { display: grid; gap: 15px; margin-top: 20px; }
+
+.btn-main { 
+    background: var(--primary); color: white; border: none; padding: 20px; 
+    border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.btn-main.secondary { background: #3498db; }
+#file-upload { display: none; }
+
+.history { margin-top: 30px; }
+.history h3 { color: var(--dark); margin-bottom: 10px; }
+.history ul { list-style: none; }
+.history li { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+
+/* Camera Overlay */
+.camera-overlay { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: black; z-index: 100; display: flex; flex-direction: column;
+}
+
+.hidden { display: none !important; }
+
+#video { width: 100%; height: 100%; object-fit: cover; }
+
+.scanner-frame {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 250px; height: 250px; border: 2px solid var(--primary);
+    box-shadow: 0 0 0 1000px rgba(0,0,0,0.5); z-index: 101; border-radius: 20px;
+}
+
+.camera-ui { 
+    position: absolute; bottom: 40px; width: 100%; z-index: 102; 
+    text-align: center; color: white; 
+}
+
+.scanning-info { background: rgba(0,0,0,0.7); margin: 0 20px 20px; padding: 15px; border-radius: 15px; }
+
+.camera-buttons { display: flex; justify-content: center; gap: 20px; align-items: center; }
+
+.btn-circle { width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.5rem; }
+.btn-circle.cancel { background: var(--danger); color: white; }
+
+.btn-add { 
+    background: var(--primary); color: white; border: none; padding: 15px 30px; 
+    border-radius: 30px; font-weight: bold; font-size: 1.1rem; 
+}
