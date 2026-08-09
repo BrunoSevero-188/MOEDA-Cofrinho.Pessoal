@@ -1,0 +1,6 @@
+flask
+google-genai
+pillow
+qrcode[pil]
+python-dotenv
+pyopenssl

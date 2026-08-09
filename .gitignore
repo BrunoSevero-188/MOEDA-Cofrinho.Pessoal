@@ -1,0 +1,15 @@
+# Ambiente / segredos
+.env
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+
+# Dados locais do app (não deveria ir pro repo)
+cofrinho.json
+
+# IDE
+.vscode/
+.idea/

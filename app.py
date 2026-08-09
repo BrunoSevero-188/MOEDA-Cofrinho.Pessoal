@@ -10,6 +10,9 @@ import qrcode
 
 app = Flask(__name__)
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # Configurar a API KEY do Google Gemini via variável de ambiente
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
