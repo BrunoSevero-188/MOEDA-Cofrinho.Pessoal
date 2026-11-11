@@ -1,0 +1,16 @@
+{
+  "name": "Smart Cofrinho",
+  "short_name": "Cofrinho",
+  "description": "Contador de dinheiro com câmera + IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#2ecc71",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

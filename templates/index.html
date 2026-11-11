@@ -6,13 +6,12 @@
     <title>Smart Cofrinho</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#2ecc71">
 </head>
 <body>
     <div class="app-container">
         <header>
-            <button class="btn-settings" onclick="openSettings()">
-                <i class="fas fa-gear"></i>
-            </button>
             <h1>Meu Cofrinho</h1>
             <div class="balance-card">
                 <span>Saldo Total</span>
@@ -28,6 +27,15 @@
             <button class="btn-main secondary" onclick="document.getElementById('file-upload').click()">
                 <i class="fas fa-file-invoice-dollar"></i> Calcular Foto
             </button>
+
+            <!-- Histórico -->
+            <section class="history" id="history-section">
+                <h3><i class="fas fa-history"></i> Histórico</h3>
+                <ul id="history-list"></ul>
+                <p id="history-empty" style="text-align:center;color:#888;padding:20px;display:none;">
+                    Nenhuma transação ainda. Use a câmera ou foto para começar!
+                </p>
+            </section>
         </main>
 
         <!-- Overlay da Câmera -->
@@ -41,20 +49,6 @@
                 </div>
                 <button class="btn-add" onclick="confirmScan()">Adicionar e Continuar</button>
                 <button class="btn-circle cancel" onclick="closeScanner()">X</button>
-            </div>
-        </div>
-
-        <!-- Modal de Configurações (API Key) -->
-        <div id="settings-modal" class="settings-modal hidden">
-            <div class="settings-box">
-                <h3>Configurar API Key</h3>
-                <p>Cole sua chave da API do Google Gemini. Ela fica salva só neste navegador.</p>
-                <input type="password" id="api-key-input" placeholder="Cole sua chave aqui">
-                <a href="https://aistudio.google.com/apikey" target="_blank">Gerar chave gratuita no Google AI Studio</a>
-                <div class="settings-buttons">
-                    <button class="btn-add" onclick="saveApiKey()">Salvar</button>
-                    <button class="btn-circle cancel" onclick="closeSettings()">X</button>
-                </div>
             </div>
         </div>
     </div>

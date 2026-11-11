@@ -127,3 +127,50 @@ main { padding: 20px; }
     align-items: center;
     gap: 15px;
 }
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--dark);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    z-index: 1000;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    max-width: 90vw;
+    text-align: center;
+}
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+.toast.error {
+    background: var(--danger);
+}
+
+/* Histórico melhorado */
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.history-item:last-child { border-bottom: none; }
+.history-info { display: flex; flex-direction: column; gap: 2px; }
+.history-value { font-weight: 600; color: var(--primary); font-size: 1.1rem; }
+.history-detalhes { font-size: 0.8rem; color: #888; }
+.history-date { font-size: 0.75rem; color: #aaa; }
+
+/* Loading state nos botões */
+.btn-main:disabled, .btn-add:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

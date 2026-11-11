@@ -1,16 +1,48 @@
 # Ambiente / segredos
 .env
+.env.local
 venv/
 env/
+.venv/
 
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
 
 # Dados locais do app (não deveria ir pro repo)
 cofrinho.json
+cofrinho.db
+cofrinho.db-wal
+cofrinho.db-shm
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
 
 # IDE
 .vercel/
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testes
+.coverage
+htmlcov/
+.pytest_cache/
