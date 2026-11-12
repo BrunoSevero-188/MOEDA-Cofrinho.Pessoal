@@ -3,6 +3,9 @@ let lastDetectedValue = 0;
 let lastImageHash = '';
 const video = document.getElementById('video');
 
+// Carrega API key salva no localStorage
+const userApiKey = localStorage.getItem('moeda_api_key') || '';
+
 // Inicialização
 updateBalanceDisplay();
 
@@ -155,10 +158,13 @@ async function scanFrame(canvas) {
     document.getElementById('scan-status').innerText = "🔍 Analisando...";
 
     try {
+        const body = { image: base64Image };
+        if (userApiKey) body.api_key = userApiKey;
+
         const res = await fetch('/process_image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: base64Image }) // SEM api_key!
+            body: JSON.stringify(body)
         });
 
         const data = await res.json();
@@ -238,10 +244,13 @@ async function calculateFromPhoto(event) {
         showToast('🔍 Analisando foto...');
 
         try {
+            const body = { image: base64Image };
+            if (userApiKey) body.api_key = userApiKey;
+
             const res = await fetch('/process_image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64Image })
+                body: JSON.stringify(body)
             });
 
             const data = await res.json();
@@ -271,9 +280,40 @@ async function calculateFromPhoto(event) {
     event.target.value = ''; // Permite escolher mesma foto novamente
 }
 
+// ==================== SETTINGS MODAL ====================
+
+function openSettings() {
+    document.getElementById('settings-modal').classList.remove('hidden');
+    const input = document.getElementById('api-key-input');
+    if (userApiKey) input.value = userApiKey;
+    input.focus();
+}
+
+function closeSettings() {
+    document.getElementById('settings-modal').classList.add('hidden');
+}
+
+function saveApiKey() {
+    const input = document.getElementById('api-key-input');
+    const key = input.value.trim();
+    localStorage.setItem('moeda_api_key', key);
+    showToast(key ? '✅ Chave salva!' : '🗑️ Chave removida');
+    closeSettings();
+    // Recarrega a variável para uso imediato
+    window.location.reload();
+}
+
+// Fecha modal clicando fora
+document.getElementById('settings-modal')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeSettings();
+});
+
 // ==================== EXPORT ====================
 // Torna funções globais para onclick no HTML
 window.openScanner = openScanner;
 window.closeScanner = closeScanner;
 window.confirmScan = confirmScan;
 window.calculateFromPhoto = calculateFromPhoto;
+window.openSettings = openSettings;
+window.closeSettings = closeSettings;
+window.saveApiKey = saveApiKey;

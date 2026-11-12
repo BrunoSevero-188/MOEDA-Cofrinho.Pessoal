@@ -185,10 +185,12 @@ Retorne APENAS um JSON válido com aspas duplas:
 {{"total": valor_float, "detalhes": "string descritiva"}}"""
 
 
-def process_image_with_gemini(image_bytes: bytes) -> dict:
+def process_image_with_gemini(image_bytes: bytes, api_key: str = None) -> dict:
     """Processa imagem com Gemini e retorna dict validado."""
-    if not GEMINI_API_KEY:
-        return {"total": 0.0, "detalhes": "Chave da API Gemini não configurada no servidor."}
+    # Usa chave do usuário se fornecida, senão usa a do servidor
+    key = (api_key or GEMINI_API_KEY or '').strip()
+    if not key:
+        return {"total": 0.0, "detalhes": "Chave da API não configurada. Insira nas configurações ou no .env do servidor."}
 
     try:
         img = Image.open(io.BytesIO(image_bytes))
@@ -198,7 +200,7 @@ def process_image_with_gemini(image_bytes: bytes) -> dict:
             ratio = max_dim / max(img.size)
             img = img.resize((int(img.width * ratio), int(img.height * ratio)), Image.LANCZOS)
 
-        client = genai.Client(api_key=GEMINI_API_KEY)
+        client = genai.Client(api_key=key)
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=[PROMPT, img],
@@ -225,7 +227,7 @@ def process_image_with_gemini(image_bytes: bytes) -> dict:
     except Exception as e:
         msg = str(e)
         if "API key not valid" in msg or "API_KEY_INVALID" in msg:
-            return {"total": 0.0, "detalhes": "Chave da API inválida. Configure no painel do servidor."}
+            return {"total": 0.0, "detalhes": "Chave da API inválida. Verifique nas configurações ou no .env do servidor."}
         if "RESOURCE_EXHAUSTED" in msg or "429" in msg:
             return {
                 "total": 0.0,
@@ -259,6 +261,9 @@ def process_image():
     if not data or 'image' not in data:
         return jsonify({"total": 0, "detalhes": "Imagem não fornecida"}), 400
 
+    # Extrai api_key do usuário se enviada (opcional)
+    user_api_key = data.get('api_key', '').strip() or None
+
     try:
         # Remove prefixo data:image/...;base64,
         image_data = data['image']
@@ -268,7 +273,7 @@ def process_image():
     except Exception:
         return jsonify({"total": 0, "detalhes": "Imagem inválida (base64 malformado)"}), 400
 
-    result = process_image_with_gemini(img_bytes)
+    result = process_image_with_gemini(img_bytes, user_api_key)
     return jsonify(result)
 
 
@@ -317,14 +322,14 @@ def print_startup_banner(port):
     network_url = f"http://{get_local_ip()}:{port}"
 
     print("=" * 60)
-    print("💰  SMART COFRINHO rodando!")
-    print(f"🖥   Local (este PC):  {local_url}")
-    print(f"📱  Rede (celular):    {network_url}")
+    print("$  SMART COFRINHO rodando!")
+    print(f"PC  Local (este PC):  {local_url}")
+    print(f"Tel Rede (celular):    {network_url}")
     print("=" * 60)
 
     if not GEMINI_API_KEY:
-        print("⚠️  AVISO: GEMINI_API_KEY não configurada no .env")
-        print("   Configure no arquivo .env para usar a detecção por IA")
+        print("!  AVISO: GEMINI_API_KEY nao configurada no .env")
+        print("   Configure no arquivo .env para usar a deteccao por IA")
         print("=" * 60)
 
     print("Escaneie o QR Code abaixo com o celular (mesma Wi-Fi):\n")
@@ -332,7 +337,11 @@ def print_startup_banner(port):
     qr = qrcode.QRCode(border=1)
     qr.add_data(network_url)
     qr.make()
-    qr.print_ascii(invert=True)
+    try:
+        qr.print_ascii(invert=True)
+    except UnicodeEncodeError:
+        # Console nao suporta caracteres do QR code ASCII
+        print(f"[QR Code nao suportado no console - acesse {network_url}]")
     print()
 
 
